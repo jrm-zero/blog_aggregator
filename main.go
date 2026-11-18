@@ -2,28 +2,24 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"github.com/jrm-zero/blog_aggregator/internal/config"
 )
 
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalf("error reading config: %v", err)
 	}
+	fmt.Printf("Read config: %+v\n", cfg)
 
-	if err = cfg.SetUser("James"); err != nil {
-		fmt.Println("fucked up")
-		return
+	if err = cfg.SetUser("JR"); err != nil {
+		log.Fatalf("couldn't set current user: %v", err)
 	}
 
 	cfg, err = config.Read()
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalf("error reading config: %v", err)
 	}
-
-	fmt.Println(cfg)
-
-	return
+	fmt.Printf("Read config again: %+v\n", cfg)
 }
