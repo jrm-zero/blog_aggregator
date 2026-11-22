@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+
 	"github.com/jrm-zero/blog_aggregator/internal/config"
 )
 
@@ -27,28 +28,24 @@ func main() {
 		handlers: h,
 	}
 
-	cmdLogin := command{
-		name: "login",
-		arguments: []string{},
-	}
-
-	err = cmds.register("login", handlerLogin)
-	if err != nil {
-		log.Fatalf("error registering command: %v", err)
-	}
+	cmds.register("login", handlerLogin)
 
 	cmdLnArgs := os.Args
 
 	if len(cmdLnArgs) < 2 {
-		fmt.Println("To few arguments entered!")
+		fmt.Println("Too few arguments entered!")
 		os.Exit(1)
 	}
-	cmdLogin.arguments[0] = cmdLnArgs[1]
-	err = cmds.run(&s, cmdLogin)
+
+	newCmd := command{
+		name:      cmdLnArgs[1],
+		arguments: cmdLnArgs[2:],
+	}
+
+	err = cmds.run(&s, newCmd)
 	if err != nil {
 		log.Fatalf("error running command: %v", err)
 	}
-
 
 	c, err = config.Read()
 	if err != nil {

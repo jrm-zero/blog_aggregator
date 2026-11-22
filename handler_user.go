@@ -9,7 +9,6 @@ func handlerLogin(s *state, cmd command) error {
 	if len(cmd.arguments) == 0 {
 		return errors.New("One Argument Expected: Username")
 	}
-
 	if err := s.cfg.SetUser(cmd.arguments[0]); err != nil {
 		return err
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 type command struct {
-	name string
+	name      string
 	arguments []string
 }
 
@@ -24,7 +24,10 @@ func (c *commands) run(s *state, cmd command) error {
 		return errors.New("Command does not exist")
 	}
 
-	handler(s, cmd)
+	if err := handler(s, cmd); err != nil {
+		return err
+	}
+
 	return nil
 
 }
