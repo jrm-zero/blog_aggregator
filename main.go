@@ -5,11 +5,16 @@ import (
 	"log"
 	"os"
 
+	"database/sql"
+
 	"github.com/jrm-zero/blog_aggregator/internal/config"
+	"github.com/jrm-zero/blog_aggregator/internal/database"
+	_ "github.com/lib/pq"
 )
 
 type state struct {
-	cfg *config.Config
+	cfg   *config.Config
+	dBase *database.Queries
 }
 
 func main() {
@@ -19,8 +24,15 @@ func main() {
 	}
 	fmt.Printf("Read config: %+v\n", c)
 
+	dbURL := c.DBURL
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatalf("error opening data base: %v", err)
+	}
+
 	s := state{
-		cfg: &c,
+		cfg:   &c,
+		dBase: database.New(db),
 	}
 
 	h := map[string]func(*state, command) error{}
@@ -29,6 +41,7 @@ func main() {
 	}
 
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	cmdLnArgs := os.Args
 
