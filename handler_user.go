@@ -52,3 +52,29 @@ func handlerRegister(s *state, cmd command) error {
 	fmt.Printf("Name: %s\nID: %v\nCreated At: %v\nUpdated At: %v\n", usr.Name, usr.ID, usr.CreatedAt, usr.UpdatedAt)
 	return nil
 }
+
+func handlerReset(s *state, cmd command) error {
+	if err := s.dBase.DeleteAllUsers(context.Background()); err != nil {
+		return err
+	}
+	fmt.Println("Database has been successfully reset!")
+	return nil
+}
+
+func handlerUsers(s *state, cmd command) error {
+	usrs, err := s.dBase.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, usr := range usrs {
+		if usr.Name == s.cfg.CurrentUserName {
+			fmt.Printf("* %s (current)\n", usr.Name)
+			continue
+		}
+
+		fmt.Printf("* %s\n", usr.Name)
+	}
+
+	return nil
+}
