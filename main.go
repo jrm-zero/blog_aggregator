@@ -40,10 +40,14 @@ func main() {
 		handlers: h,
 	}
 
+	//stringCmds := []string{"login", "register", "reset"}
+	// for _, cmd = range stringCmds
+
 	cmds.register("login", handlerLogin)
 	cmds.register("register", handlerRegister)
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
+	cmds.register("agg", handlerAgg)
 
 	cmdLnArgs := os.Args
 

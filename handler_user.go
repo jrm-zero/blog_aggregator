@@ -78,3 +78,19 @@ func handlerUsers(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerAgg(s *state, cmd command) error {
+	feedURL := "https://www.wagslane.dev/index.xml"
+
+	RSSFeed, err := fetchFeed(context.Background(), feedURL)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Title of Channel: %s\nDescription of Channel: %s\n\n", RSSFeed.Channel.Title, RSSFeed.Channel.Description)
+
+	for _, item := range RSSFeed.Channel.Item {
+		fmt.Printf("Title of Item: %s\nDescription of Item: %s\n\n", item.Title, item.Description)
+	}
+	return nil
+}
