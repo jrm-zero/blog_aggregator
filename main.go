@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
-	fmt.Printf("Read config: %+v\n", c)
+	//fmt.Printf("Read config: %+v\n", c)
 
 	dbURL := c.DBURL
 	db, err := sql.Open("postgres", dbURL)
@@ -48,6 +48,8 @@ func main() {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
 	cmds.register("agg", handlerAgg)
+	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("feeds", handlerFeeds)
 
 	cmdLnArgs := os.Args
 
@@ -70,5 +72,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
-	fmt.Printf("Read config again: %+v\n", c)
+	//fmt.Printf("Read config again: %+v\n", c)
 }

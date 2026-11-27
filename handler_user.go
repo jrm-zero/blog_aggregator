@@ -94,3 +94,47 @@ func handlerAgg(s *state, cmd command) error {
 	}
 	return nil
 }
+
+func handlerAddFeed(s *state, cmd command) error {
+	if len(cmd.arguments) < 2 {
+		return errors.New("Two Arguments Expected: go run . addfeed [Feed Name] [Feed URL]")
+	}
+
+	currentUsr, err := s.dBase.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+
+	feedParams := database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      cmd.arguments[0],
+		Url:       cmd.arguments[1],
+		UserID:    currentUsr.ID,
+	}
+
+	feed, err := s.dBase.CreateFeed(context.Background(), feedParams)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Feed Name: %s\nFeed URL: %s\nCreated At: %v\nUpdated At: %v\nUser ID: %s\n", feed.Name, feed.Url, feed.CreatedAt, feed.UpdatedAt, feed.UserID)
+	return nil
+}
+
+func handlerFeeds(s *state, cmd command) error {
+	feeds, err := s.dBase.GetFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, feed := range feeds {
+		usr, err := s.dBase.GetUserByID(context.Background(), feed.UserID)
+		if err != nil {
+			return errors.New("User not found when retreiving feeds.")
+		}
+		fmt.Printf("* Name: %s, URL: %s, User: %s\n", feed.Name, feed.Url, usr)
+	}
+	return nil
+}
