@@ -102,7 +102,8 @@ func handlerAddFeed(s *state, cmd command) error {
 
 	currentUsr, err := s.dBase.GetUser(context.Background(), s.cfg.CurrentUserName)
 	if err != nil {
-		return err
+		newErr := fmt.Errorf("Error Getting User: %v\n", err)
+		return newErr
 	}
 
 	feedParams := database.CreateFeedParams{
@@ -116,10 +117,32 @@ func handlerAddFeed(s *state, cmd command) error {
 
 	feed, err := s.dBase.CreateFeed(context.Background(), feedParams)
 	if err != nil {
-		return err
+		newErr := fmt.Errorf("Error Creating Feed: %v\n", err)
+		return newErr
+	}
+
+	feedID, err := s.dBase.GetFeedIDByURL(context.Background(), cmd.arguments[1])
+	if err != nil {
+		newErr := fmt.Errorf("Error Getting Feed's ID: %v\n", err)
+		return newErr
+	}
+
+	feedFollowParams := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    currentUsr.ID,
+		FeedID:    feedID,
+	}
+
+	feedFollow, err := s.dBase.CreateFeedFollow(context.Background(), feedFollowParams)
+	if err != nil {
+		newErr := fmt.Errorf("Error Creating Feed Follow While Creating New Feed: %v\n", err)
+		return newErr
 	}
 
 	fmt.Printf("Feed Name: %s\nFeed URL: %s\nCreated At: %v\nUpdated At: %v\nUser ID: %s\n", feed.Name, feed.Url, feed.CreatedAt, feed.UpdatedAt, feed.UserID)
+	fmt.Printf("%s is also now following %s", feedFollow.UserName, feedFollow.FeedName)
 	return nil
 }
 
@@ -136,5 +159,58 @@ func handlerFeeds(s *state, cmd command) error {
 		}
 		fmt.Printf("* Name: %s, URL: %s, User: %s\n", feed.Name, feed.Url, usr)
 	}
+	return nil
+}
+
+func handlerFollowFeed(s *state, cmd command) error {
+	if len(cmd.arguments) == 0 {
+		return errors.New("One Argument Expected: Feed URL")
+	}
+
+	currentUsr, err := s.dBase.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+
+	feedID, err := s.dBase.GetFeedIDByURL(context.Background(), cmd.arguments[0])
+	if err != nil {
+		return err
+	}
+
+	feedFollowParams := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    currentUsr.ID,
+		FeedID:    feedID,
+	}
+
+	feedFollow, err := s.dBase.CreateFeedFollow(context.Background(), feedFollowParams)
+
+	fmt.Printf("ID of Row: %v\nCreated At: %v\nUpdated At: %v\nWho is Following: %s\nName of Feed: %s\n", feedFollow.ID, feedFollow.CreatedAt, feedFollow.UpdatedAt, feedFollow.UserName, feedFollow.FeedName)
+
+	return nil
+}
+
+func handlerFollowing(s *state, cmd command) error {
+	if len(cmd.arguments) > 0 {
+		return errors.New("No arguments expected for following")
+	}
+
+	currentUsr, err := s.dBase.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+
+	feedFollows, err := s.dBase.GetFeedFollowsForUser(context.Background(), currentUsr.ID)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s follows these feeds:\n", currentUsr.Name)
+	for _, followedFeed := range feedFollows {
+		fmt.Printf("* %s\n", followedFeed.FeedName)
+	}
+
 	return nil
 }

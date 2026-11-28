@@ -50,6 +50,8 @@ func main() {
 	cmds.register("agg", handlerAgg)
 	cmds.register("addfeed", handlerAddFeed)
 	cmds.register("feeds", handlerFeeds)
+	cmds.register("follow", handlerFollowFeed)
+	cmds.register("following", handlerFollowing)
 
 	cmdLnArgs := os.Args
 

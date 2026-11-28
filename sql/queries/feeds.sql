@@ -8,3 +8,11 @@ SELECT
     *
 FROM
     feeds;
+
+-- name: GetFeedIDByURL :one
+SELECT
+    id
+FROM
+    feeds
+WHERE
+    url = $1;
